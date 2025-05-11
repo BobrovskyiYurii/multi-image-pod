@@ -1,0 +1,81 @@
+php: &php some-registry/php-image
+nginx: &nginx public.ecr.aws/nginx/nginx
+global:
+  image:
+    repository: *php
+    tag: "abcd123"
+  secretStoreName: "app-external-aws"
+  serviceAccountName: serviceName
+external-secret:
+  enabled: false
+migration-job:
+  command: ["php"]
+  args: ["bin/console", "doctrine:migrations:migrate", "--no-interaction"]
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+web:
+  enabled: true
+  virtualService:
+    enabled: false
+  replicas: 1
+  name: nginx
+  image:
+    repository: *nginx
+    tag: latest
+  ports:
+    - name: http
+      appPort: 80
+      servicePort: 80
+      protocol: TCP
+  readinessProbe:
+    enabled: false
+  livenessProbe:
+    enabled: false
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+  metric:
+    enabled: false
+  extraVolumeMounts:
+    - name: nginx-config-alpha
+      mountPath: /etc/nginx/nginx.conf
+      readOnly: true
+      subPath: nginx
+    - name: nginx-config-alpha
+      mountPath: /etc/nginx/conf.d/default.conf
+      readOnly: true
+      subPath: virtualhost
+  extraVolumes:
+    - name: nginx-config-alpha
+      configMap:
+        name: nginx-config-alpha
+  extraContainers:
+    - name: php
+      image: some-registry/php-image:abcd123
+      envFrom:
+        - configMapRef:
+            name: configmap-name
+        - secretRef:
+            name: secret-name
+      env:
+        - name: APP_NAME
+          value: "Your app name"
+        - name: APP_ENV
+          value: "production"
+        - name: OTHERS_ENVS
+          value: "here"
+first-run-job:
+  command: ["php"]
+  args: ["bin/console", "app:command-name"]
+  schedule: "* * * * *"
+  spot:
+    enabled: false
+second-run-job:
+  enabled: false
