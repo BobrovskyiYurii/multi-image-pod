@@ -11,7 +11,6 @@ services:
     container_name: multi-image-pod-app
     environment:
       APP_ENV: "${APP_ENV}"
-      SERVICE_ROLE: "${SERVICE_ROLE:-web,cron}"
       OPCACHE_ENABLE: "${OPCACHE_ENABLE:-0}"
       XDEBUG_ENABLE: "${XDEBUG_ENABLE:-0}"
       XDEBUG_MODE: "${XDEBUG_MODE:-debug}"

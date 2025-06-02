@@ -4,7 +4,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Beaver\\MultiImagePodExample\\": "src/"
+            "App\\": "src/"
         }
     },
     "authors": [
@@ -12,5 +12,8 @@
             "name": "Bobrovskyi Yurii"
         }
     ],
-    "require": {}
+    "require": {
+        "monolog/monolog": "^3.9",
+        "php": "^8.2"
+    }
 }
