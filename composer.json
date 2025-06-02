@@ -1,0 +1,19 @@
+{
+    "name": "beaver/multi-image-pod-example",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Bobrovskyi Yurii"
+        }
+    ],
+    "require": {
+        "monolog/monolog": "^3.9",
+        "php": "^8.2"
+    }
+}
