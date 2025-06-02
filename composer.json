@@ -1,0 +1,16 @@
+{
+    "name": "beaver/multi-image-pod-example",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Beaver\\MultiImagePodExample\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Bobrovskyi Yurii"
+        }
+    ],
+    "require": {}
+}

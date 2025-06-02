@@ -8,12 +8,7 @@ services:
         - COMPOSER_TOKEN
       args:
         APP_ENV: "development"
-    container_name: cloud-app
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
+    container_name: multi-image-pod-app
     environment:
       APP_ENV: "${APP_ENV}"
       SERVICE_ROLE: "${SERVICE_ROLE:-web,cron}"
@@ -24,68 +19,24 @@ services:
       XDEBUG_CLIENT_PORT: "${XDEBUG_CLIENT_PORT:-9003}"
       XDEBUG_CONFIG_EXTRA: "${XDEBUG_CONFIG_EXTRA:-xdebug.start_with_request=yes;}"
     networks:
-      - cloud-network
+      - multi-image-pod
 
   nginx:
     image: public.ecr.aws/nginx/nginx:latest
-    container_name: cloud-nginx
+    container_name: multi-image-pod-nginx
     ports:
       - "8080:80"
       - "426:426"
     volumes:
       - ./docker/config/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./docker/config/nginx/app.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - app
+      - ./public:/app/public
     networks:
-      - cloud-network
-
-  postgres:
-    image: public.ecr.aws/docker/library/postgres:14.6-alpine
-    container_name: cloud-postgres
-    volumes:
-      - ./docker/config/postgres/init.sh:/docker-entrypoint-initdb.d/init.sh
-      - postgres_data_dev:/var/lib/postgresql/data/pgdata
-    environment:
-      PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_USER: postgres
-      DB_NAME: db_name
-      DB_USER: app_user
-      DB_PASSWORD: app_pass
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready" ]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-    ports:
-      - "5432:5432"
-    networks:
-      - cloud-network
-
-  redis:
-    image: public.ecr.aws/docker/library/redis:6.2-alpine
-    container_name: cloud-redis
-    ports:
-      - "6379:6379"
-    networks:
-      - cloud-network
-
-  jaeger:
-    image: jaegertracing/all-in-one:1.22
-    environment:
-      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
-    ports:
-      - "16686:16686"
-    networks:
-      - cloud-network
+      - multi-image-pod
 
 networks:
-  cloud:
+  multi-image-pod:
     driver: bridge
-
-volumes:
-  postgres_data_dev:
 
 secrets:
   GITHUB_TOKEN:

@@ -27,7 +27,7 @@ Base Multi-Image PHP Deployment Approach
     php.ini: ./docker/config/php/php.ini
     Додаткові конфіги: ./docker/config/php/conf.d/
     FPM-пул: ./docker/config/php/fpm/pool.d/*.conf
-    Логи: /var/log/php/
+    Логи: /proc/self/fd/1 (stdout)
 
 🧷 Розширення PHP
 
@@ -99,6 +99,12 @@ Docker Compose автоматично читає значення з environment
             environment: GITHUB_TOKEN
         COMPOSER_TOKEN:
             environment: COMPOSER_TOKEN
+
+To set environment variables:
+```bash
+export GITHUB_TOKEN="personal access token with repository permissions"
+export COMPOSER_TOKEN="personal corporate Artifactory access token"
+```
 
 🌐 Доступ
 

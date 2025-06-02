@@ -2,8 +2,8 @@ ARG PHP_VER=8.2
 
 FROM public.ecr.aws/docker/library/php:${PHP_VER}-fpm-bookworm AS base
 
-ARG PHP_EXT="pdo_pgsql iconv sockets"
-ARG SYS_EXT="libpq-dev libonig-dev"
+ARG PHP_EXT="pdo mbstring opcache pdo_pgsql iconv sockets"
+ARG SYS_EXT="unzip libpq-dev libonig-dev"
 ARG BUILD_ID=0
 ARG APP_ENV="production"
 
@@ -20,11 +20,11 @@ COPY --link . .
 
 # install the necessary dependencies
 RUN apt-get update \
-    && apt-get install -y unzip ${SYS_EXT} \
+    && apt-get install -y ${SYS_EXT} \
     && rm -rf /var/lib/apt/lists/* \
     # install PHP extensions
-    && docker-php-ext-install pdo mbstring opcache ${PHP_EXT} \
-    && docker-php-ext-enable pdo mbstring opcache ${PHP_EXT}
+    && docker-php-ext-install ${PHP_EXT} \
+    && docker-php-ext-enable ${PHP_EXT}
 
 # install dependencies
 RUN --mount=type=secret,id=GITHUB_TOKEN --mount=type=secret,id=COMPOSER_TOKEN COMPOSER_INSTALL_OPTIONS="" \
@@ -37,7 +37,6 @@ RUN mkdir -p /entrypoint.d \
     && cp /app/docker/provision/entrypoint.sh /usr/local/bin/ \
     && chmod +x /usr/local/bin/entrypoint.sh \
     # configure php
-    && mkdir -p /var/log/php/ \
     && cp ./docker/config/php/php.ini /usr/local/etc/php/php.ini \
     && cp ./docker/config/php/conf.d/* /usr/local/etc/php/conf.d/ \
     && cp ./docker/config/php/fpm/php-fpm.conf /usr/local/etc/ \

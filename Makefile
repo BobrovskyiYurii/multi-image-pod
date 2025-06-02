@@ -5,6 +5,9 @@ EXEC_APP                 = $(DOCKER_COMPOSE) exec app
 ## Project:
 ## ——————————————————————————————————————————————————————————————
 
+composer-auth: ## Create auth.json
+	@echo '{"github-oauth": {"github.com": "$(GITHUB_TOKEN)"}, "bearer": {"artifactory.infrateam.xyz:443": "$(COMPOSER_TOKEN)"}}' > auth.json
+
 install: app-build up ## Install and run the containers
 
 up: ## Start the containers
