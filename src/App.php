@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Level;
 use Monolog\Logger;
@@ -14,8 +15,11 @@ class App
 
     public function __construct()
     {
+        $streamHandler = new StreamHandler('php://stdout', Level::Info);
+        $streamHandler->setFormatter(new JsonFormatter());
+
         $this->logger = new Logger('name');
-        $this->logger->pushHandler(new StreamHandler('php://stdout', Level::Info));
+        $this->logger->pushHandler($streamHandler);
     }
 
     public function run(): void
