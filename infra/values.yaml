@@ -1,19 +1,8 @@
-php: &php some-registry/php-image
-nginx: &nginx public.ecr.aws/nginx/nginx
 global:
-  image:
-    repository: *php
-    tag: "abcd123"
-  secretStoreName: "app-external-aws"
-  serviceAccountName: serviceName
+  secretStoreName: "app-external-aws.application"
+  serviceAccountName: applicationServiceName
 external-secret:
   enabled: false
-migration-job:
-  command: ["php"]
-  args: ["bin/console", "doctrine:migrations:migrate", "--no-interaction"]
-  annotations:
-    argocd.argoproj.io/hook: PreSync
-    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 web:
   enabled: true
   virtualService:
@@ -21,7 +10,7 @@ web:
   replicas: 1
   name: nginx
   image:
-    repository: *nginx
+    repository: public.ecr.aws/nginx/nginx
     tag: latest
   ports:
     - name: http
@@ -58,24 +47,23 @@ web:
         name: nginx-config-alpha
   extraContainers:
     - name: php
-      image: some-registry/php-image:abcd123
+      image: bobrovskyi4pdffiller/multicontainer-pod-example-php:1.0
       envFrom:
         - configMapRef:
             name: configmap-name
         - secretRef:
             name: secret-name
       env:
-        - name: APP_NAME
-          value: "Your app name"
         - name: APP_ENV
           value: "production"
-        - name: OTHERS_ENVS
-          value: "here"
-first-run-job:
+        - name: OPCACHE_ENABLE
+          value: "0"
+migration-job:
+  enabled: false
   command: ["php"]
-  args: ["bin/console", "app:command-name"]
-  schedule: "* * * * *"
-  spot:
-    enabled: false
-second-run-job:
+  args: ["bin/console", "doctrine:migrations:migrate", "--no-interaction"]
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+tr-sync-pending-refund:
   enabled: false
